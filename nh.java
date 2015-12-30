@@ -1,12 +1,16 @@
-package demo;
+package toningword;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
+
 
 public class nh {
 
@@ -73,7 +77,8 @@ public class nh {
 	            line = reader.readLine();
 	            if(line == null) break;
 	            if(!lis.isEmpty())lis.removeAll(lis);
-	            for(String sk: line.split("[ ,.:;!?~']+")){
+	            for(String sk: line.split("[ ,.:;!?~']+"))
+	            {
 	            	lis.add(sk);
 	            }
 	            for(int i=0;i<lis.size();i++){
@@ -83,29 +88,23 @@ public class nh {
 	                if (i+1<lis.size()) 
 	                {
 	                    String sa2=lis.get(i+1);
-	                    sa1+=" ";
-	                    sa1+=sa2;
+	                    sa1=sa1.concat(" "+sa2);
 	                    String sb2=detoning(sa2,lut);
-	                    sb1+="/";
-	                    sb1+=sb2;
+	                    sb1=sb1.concat(" "+sb2);
 	                    add(res,sb1,sa1);
 	                    if (i+2<lis.size())
 	                    {
 	                        String sa3=lis.get(i+2);
-	                        sa1+=" ";
-		                    sa1+=sa3;
+	                        sa1=sa1.concat(" "+sa3);
 		                    String sb3=detoning(sa3,lut);
-		                    sb1+="/";
-		                    sb1+=sb3;
+		                    sb1=sb1.concat(" "+sb3);
 		                    add(res,sb1,sa1);
 	                        if (i+3<lis.size())
 	                        {
 	                        	String sa4=lis.get(i+3);
-		                        sa1+=" ";
-			                    sa1+=sa4;
+	                        	sa1=sa1.concat(" "+sa4);
 			                    String sb4=detoning(sa4,lut);
-			                    sb1+="/";
-			                    sb1+=sb4;
+			                    sb1=sb1.concat(" "+sb4);
 			                    add(res,sb1,sa1);
 	                        }
 	                    }
@@ -116,6 +115,7 @@ public class nh {
 		return res;
 	}
 	
+
 	public static String detoning(String toned, Map<Integer, Integer> lut) 
 	{
 		String res = "";
@@ -148,44 +148,38 @@ public class nh {
     		String t=lut.get(i);					// List B:	t
     		List<String> keyset=m.get(s);
     		ak=compare(t,keyset);
-    		if(ak) {
-    			x++;
-    		}
-    		if (i+1<sk) 
+    		if (ak&&i+1<sk) 
             {
                 String sa2=lis.get(i+1);			// List A:	sa2
-                String s2=s+"/"+sa2;				
+                String s2=s.concat(" "+sa2);				
                 String ta2=lut.get(i+1);			// List B:	ta2
-                String t2=t+"/"+ta2;
+                String t2=t.concat(" "+ta2);
                 keyset=m.get(s2);
                 ak=compare(t2,keyset);
-        		if(ak) {
-        			x++;
-        			i++;
-        		}
-                if (i+2<sk)
+        		if (ak&&i+2<sk)
                 {
+//        			i++;
                     String sa3=lis.get(i+2);		// List A:	sa3
-                    String s3=s2+"/"+sa3;			
+                    String s3=s2.concat(" "+sa3);			
                     String ta3=lut.get(i+2);		// List B:	ta3
-                    String t3=t2+"/"+ta3;
+                    String t3=t2.concat(" "+ta3);
                     keyset=m.get(s3);
                     ak=compare(t3,keyset);
-            		if(ak) {
-            			x++;
-            			i++;
-            		}
-                    if (i+3<sk)
+            		if (ak&&i+3<sk)
                     {
-                    	String sa4=lis.get(i+3);	// List A:	sa4
-                    	String s4=s3+"/"+sa4;		//s3: 4 tu lien tiep
-                    	String ta4=lut.get(i+3);	// List B:	ta4
-                    	String t4=t3+"/"+ta4;		//t3: 4 tu lien tiep
+//            			i++;
+                    	String sa4=lis.get(i+3);			// List A:	sa4
+                    	String s4=s3.concat(" "+sa4);		//s3: 4 tu lien tiep
+                    	String ta4=lut.get(i+3);			// List B:	ta4
+                    	String t4=t3.concat(" "+ta4);		//t3: 4 tu lien tiep
                     	keyset=m.get(s4);
                         ak=compare(t4,keyset);
-                		if(ak) {
+                		if(ak&&i!=sk-4) {
                 			x++;
-                			i++;
+                		}
+                		else if(ak&&i==sk-4) {
+                			x+=4;
+                			i+=3;
                 		}
                     }
                 	
@@ -196,11 +190,58 @@ public class nh {
 	}
 
 	private static  boolean compare(String t, List<String> keyset) {
+		
 		for(int ik=0;ik<keyset.size();ik++){
-			if(keyset.get(ik).equals(t)) 
+			if(keyset.get(ik).equals(t)) {
 				return true;
-			
+			}
 		}
 		return false;
 	}
+
+	public static void finaldetone(File f3, File f4, Map<String, List<String>> detone) throws Exception {
+		PrintWriter out = DataFolder.openWriterUtf8(f4);
+		BufferedReader in = DataFolder.openReaderUtf8(f3);
+		in.readLine();
+		while(true)
+		{
+			Set<String> toning = new TreeSet<String>();
+			List<String> sizeline = new ArrayList<String>();
+			ArrayList<String> use = new ArrayList<String>();
+			String s =in.readLine();
+			if(s==null)break;
+			toning.add(s);
+			String t=s;
+			use.add(t);
+			int i=0;
+			for(String sk: s.split("\\s")){
+				sizeline.add(sk);
+			}
+			while(i<sizeline.size())
+			{
+				for(String tone: detone.get(sizeline.get(i))){
+					for(String tk:use){
+						String t1=tk.replaceFirst(sizeline.get(i), tone);
+						toning.add(t1);
+					}
+				}
+				i++;
+				copy(use,toning);
+			}
+			for(String sk:toning){
+				if(nh.similar(s, sk, detone)==1){
+					System.out.println(sk);
+					out.println(sk);
+				}
+			}
+		}
+		out.close();
+	}
+	private static void copy(ArrayList<String> use, Set<String> toning) {
+		use.removeAll(use);
+		for(String sk:toning){
+			use.add(sk);
+		}
+	}
+
 }

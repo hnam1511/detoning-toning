@@ -1,4 +1,4 @@
-package character;
+package toningword;
 
 import java.io.File;
 
